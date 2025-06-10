@@ -33,7 +33,7 @@ def main():
     client = genai.Client(api_key=api_key)
     model_name = "gemini-2.0-flash-001"
     
-    #prompt = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
+    # Available Functions
     schema_get_files_info = types.FunctionDeclaration(
         name="get_files_info",
         description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
@@ -47,17 +47,82 @@ def main():
             }
         ),
     )
-    available_functions = types.Tool(
-        function_declarations=[
-            schema_get_files_info,
-        ]
+    schema_get_file_content = types.FunctionDeclaration(
+        name="get_file_content",
+        description="Return the content of the specified file, constrained to the working directory.",
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "file_path": types.Schema(
+                    type=types.Type.STRING,
+                    description="The file path of the file whose contents should be returned, relative to the working directory. Must be provided.",
+                ),
+            }
+        ),
     )
+    schema_write_file = types.FunctionDeclaration(
+        name="write_file",
+        description="Writes the content of the specified file with a provided string, constrained to the working directory. It will create the file if it does not exist.",
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "file_path": types.Schema(
+                    type=types.Type.STRING,
+                    description="The file path of the file that should be (over)written, relative to the working directory. Must be provided.",
+                ),
+                "content": types.Schema(
+                    type=types.Type.STRING,
+                    description="The content that should be written to the specified file. Must be provided.",
+                ),
+            }
+        ),
+    )
+    schema_run_file = types.FunctionDeclaration(
+        name="run_python_file",
+        description="Executes the specified Python file, constrained to the working directory.",
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "file_path": types.Schema(
+                    type=types.Type.STRING,
+                    description="The file path of the file that should be executed, relative to the working directory. Must be provided.",
+                ),
+            }
+        ),
+    )
+
+    available_functions = [
+        types.Tool(
+            function_declarations=[
+                schema_get_files_info,
+            ]
+        ),
+        types.Tool(
+            function_declarations=[
+                schema_get_file_content,
+            ]
+        ),
+        types.Tool(
+            function_declarations=[
+                schema_write_file,
+            ]
+        ),
+        types.Tool(
+            function_declarations=[
+                schema_run_file,
+            ]
+        ),
+    ]
+
     system_prompt = '''
     You are a helpful AI coding agent.
 
     When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
 
     - List files and directories
+    - Read file contents
+    - Execute Python files with optional arguments
+    - Write or overwrite files
 
     All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
     '''
@@ -66,7 +131,7 @@ def main():
         model=model_name, 
         contents=messages,
         config=types.GenerateContentConfig(
-            tools=[available_functions],
+            tools=available_functions,
             system_instruction=system_prompt,
         ),
     )
