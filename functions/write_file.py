@@ -20,7 +20,7 @@ def write_file(working_directory, file_path, content):
     if os.path.isdir(f_abs):
         return (f'Error: File path is not a regular file: "{file_path}"')
 
-    with open(f_abs) as f:
+    with open(f_abs, "w") as f:
         f.write(content)
 
     return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
