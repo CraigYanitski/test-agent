@@ -96,8 +96,8 @@ class TestGetFileInfo(unittest.TestCase):
         #self.assertIn("Error: ", out)
 
     def test_run_non(self):
-        out = run_python_file("calculator", "nonexistant.py")
-        print("\nnonexistant.py")
+        out = run_python_file("calculator", "nonexistent.py")
+        print("\nnonexistent.py")
         print(out)
         #self.assertIn("Error: ", out)
 
