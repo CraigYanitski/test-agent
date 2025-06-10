@@ -17,10 +17,12 @@ def get_file_content(working_directory, file_path):
     
     limit = 10000
 
-    try:
-        contents = open(f_abs).read()
-    except:
-        return "Error: cannot read file"
+    with open(f_abs) as f:
+        try:
+            contents = f.read()
+        except:
+            return "Error: cannot read file"
+
     if len(contents) > limit:
         out = contents[:limit] + f'[...File "file_path" truncated at {limit} characters]'
     else:
