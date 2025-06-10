@@ -1,6 +1,7 @@
 import unittest
-from functions.get_files_info import get_files_info
+#from functions.get_files_info import get_files_info
 from functions.get_file_content import get_file_content
+from functions.write_file import write_file
 
 class TestGetFileInfo(unittest.TestCase):
     # get files info
@@ -36,6 +37,7 @@ class TestGetFileInfo(unittest.TestCase):
         #     print(out)
         #     self.assertIn("truncated at", out)
 
+    # get file content
     def test_get_main(self):
         out = get_file_content("calculator", "main.py")
         print("\nmain.py")
@@ -53,6 +55,24 @@ class TestGetFileInfo(unittest.TestCase):
         print("\n/bin/cat")
         print(out)
         self.assertIn("Error:", out)
+
+    # def test_write_lorem(self):
+    #     out = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+    #     print("\nlorem.txt")
+    #     print(out)
+    #     self.assertIn("Successfully wrote to ", out)
+
+    # def test_write_morelorem(self):
+    #     out = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+    #     print("\nmorelorem.txt")
+    #     print(out)
+    #     self.assertIn("Successfully wrote to ", out)
+
+    # def test_write_temp(self):
+    #     out = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+    #     print("\ntmp/temp.txt")
+    #     print(out)
+    #     self.assertIn("Error: ", out)
 
 if __name__ == "__main__":
     unittest.main()
