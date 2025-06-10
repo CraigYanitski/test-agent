@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+import call_function as cf
+
 
 def main():
     load_dotenv()
@@ -145,7 +147,13 @@ def main():
     print(f"Response: {response.text}\n")
     if len(response.function_calls):
         for c in response.function_calls:
-            print(f"Calling function: {c.name}({c.args})")
+            out = cf.call_function(c, verbose=verbose)
+            try:
+                resp = out.parts[0].function_response.response
+            except:
+                raise ValueError("function response not in function return; need type `types.Content`")
+            if verbose:
+                print(f"-> {resp['result']}")
         print()
     else:
         print("No functions calls were requested.\n")
