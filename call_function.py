@@ -1,5 +1,6 @@
 from google.genai import types
 
+from config import WORKING_DIR
 from functions.get_files_info import get_files_info
 from functions.get_file_content import get_file_content
 from functions.write_file import write_file
@@ -19,7 +20,7 @@ def call_function(function_call_part, verbose=False):
     else:
         print(f" - Calling function: {function_call_part.name}")
 
-    wd = "./calculator"
+    wd = WORKING_DIR
 
     if function_call_part.name in get_func.keys():
         out = get_func[function_call_part.name](wd, **function_call_part.args)

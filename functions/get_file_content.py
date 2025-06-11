@@ -1,5 +1,8 @@
 import os
 
+from config import MAX_CHAR
+
+
 def get_file_content(working_directory, file_path):
     try:
         wd_abs = os.path.abspath(working_directory)
@@ -15,7 +18,7 @@ def get_file_content(working_directory, file_path):
     if os.path.isdir(f_abs):
         return (f'Error: File not found or is not a regular file: "{file_path}"')
     
-    limit = 10000
+    limit = MAX_CHAR
 
     with open(f_abs) as f:
         try:
