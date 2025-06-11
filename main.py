@@ -6,6 +6,8 @@ from google import genai
 from google.genai import types
 
 import call_function as cf
+from config import MAX_ITERATIONS
+from prompt import system_prompt
 
 
 def main():
@@ -116,27 +118,6 @@ def main():
         ),
     ]
 
-    system_prompt = '''
-    You are a helpful AI coding agent.
-
-    When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
-
-    - List files and directories
-    - Read file contents
-    - Execute Python files with optional arguments
-    - Write or overwrite files
-
-    All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
-    '''
-
-    response = client.models.generate_content(
-        model=model_name, 
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=available_functions,
-            system_instruction=system_prompt,
-        ),
-    )
     
     # Print prompt if verbose output
     if verbose:
@@ -144,25 +125,38 @@ def main():
         print(f"User prompt: {prompt}\n")
 
     # Print response
-    print(f"Response: {response.text}\n")
-    if len(response.function_calls):
-        for c in response.function_calls:
-            out = cf.call_function(c, verbose=verbose)
-            try:
-                resp = out.parts[0].function_response.response
-            except:
-                raise ValueError("function response not in function return; need type `types.Content`")
-            if verbose:
-                print(f"-> {resp['result']}")
-        print()
-    else:
-        print("No functions calls were requested.\n")
+    for _ in range(MAX_ITERATIONS):
+        response = client.models.generate_content(
+            model=model_name, 
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=available_functions,
+                system_instruction=system_prompt,
+            ),
+        )
 
-    # Print token number if verbose output
-    if verbose:
-        print("\n-- Tokens --")
-        print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
-        print(f"Response tokens: {response.usage_metadata.candidates_token_count}\n")
+        for variant in response.candidates:
+            messages.append(variant.content)
+        if response.function_calls:
+            for c in response.function_calls:
+                out = cf.call_function(c, verbose=verbose)
+                messages.append(out)
+                try:
+                    resp = out.parts[0].function_response.response
+                except:
+                    raise ValueError("function response not in function return; need type `types.Content`")
+                if verbose:
+                    print(f"-> {resp['result']}")
+            # Print token number if verbose output
+            if verbose:
+                print("\n-- Tokens --")
+                print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+                print(f"Response tokens: {response.usage_metadata.candidates_token_count}\n")
+        else:
+            print()
+            # print("No functions calls were requested.\n")
+            break
+    print(f"Response: {response.text}\n")
     
     return 0
 
