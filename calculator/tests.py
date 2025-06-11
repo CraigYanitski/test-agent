@@ -44,6 +44,22 @@ class TestCalculator(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.calculator.evaluate("+ 3")
 
+    def test_exponentiation(self):
+        result = self.calculator.evaluate("2 ** 3")
+        self.assertEqual(result, 8)
+
+    def test_brackets(self):
+        result = self.calculator.evaluate("( 2 + 3 ) * 4")
+        self.assertEqual(result, 20)
+
+    def test_nested_brackets(self):
+        result = self.calculator.evaluate("(( 2 + 3 ) * 4 ) / 2")
+        self.assertEqual(result, 10.0)
+
+    def test_exponentiation_with_brackets(self):
+        result = self.calculator.evaluate("( 2 + 1 ) ** 3")
+        self.assertEqual(result, 27)
+
 
 if __name__ == "__main__":
     unittest.main()
