@@ -134,6 +134,11 @@ def main():
                 system_instruction=system_prompt,
             ),
         )
+        # Print token number if verbose output
+        if verbose:
+            print("\n-- Tokens --")
+            print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+            print(f"Response tokens: {response.usage_metadata.candidates_token_count}\n")
 
         for variant in response.candidates:
             messages.append(variant.content)
